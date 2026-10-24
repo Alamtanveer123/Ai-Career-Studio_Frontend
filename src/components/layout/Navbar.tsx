@@ -50,17 +50,17 @@ export const Navbar: React.FC = () => {
     <>
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-b border-neutral-200/80 dark:border-neutral-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between gap-2 h-16">
             
             {/* Left: Brand Logo & Navigation Links */}
-            <div className="flex items-center gap-8">
+            <div className="flex min-w-0 items-center gap-8">
               {/* AI Career Brand Wordmark */}
-              <NavLink to="/dashboard" className="flex items-center gap-2.5 group">
+              <NavLink to="/dashboard" className="flex shrink-0 items-center gap-2.5 group">
                 <div className="flex items-center">
                   <span className="text-xl font-extrabold tracking-tight text-neutral-950 dark:text-white font-sans">
                     AI Career<span className="text-brand-500">.</span>
                   </span>
-                  <span className="ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-brand-50 text-brand-700 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200/60 dark:border-brand-800/60">
+                  <span className="hidden min-[380px]:inline ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-brand-50 text-brand-700 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200/60 dark:border-brand-800/60">
                     Studio
                   </span>
                 </div>
@@ -95,7 +95,7 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Right: Quick Search + Theme Toggle + Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
               {/* Quick Search Bar */}
               <button
                 onClick={() => setIsSearchOpen(true)}
@@ -131,7 +131,7 @@ export const Navbar: React.FC = () => {
               </NavLink>
 
               {/* Candidate Profile Avatar & Logout */}
-              <div className="flex items-center gap-2 pl-2 border-l border-neutral-200 dark:border-neutral-800">
+              <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-neutral-200 dark:border-neutral-800">
                 <div
                   className="w-8 h-8 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 flex items-center justify-center text-xs font-bold uppercase shadow-xs cursor-pointer"
                   title={`${profile.name || 'User'} - ${profile.targetRole || 'No role set'}`}
@@ -165,7 +165,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 pt-3 pb-6 space-y-2 animate-slide-up">
+          <div className="md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 pt-3 pb-6 space-y-2 animate-slide-up">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 mb-3">
               <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-xs font-bold uppercase">
                 {profile.name.slice(0, 2)}
@@ -213,14 +213,24 @@ export const Navbar: React.FC = () => {
                 </button>
               </NavLink>
             </div>
+            <button
+              onClick={() => {
+                logout();
+                navigate('/login', { replace: true });
+              }}
+              className="w-full min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-rose-600 dark:text-rose-400 rounded-xl border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign out
+            </button>
           </div>
         )}
       </header>
 
       {/* Global Quick Search Modal */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/40 backdrop-blur-xs">
-          <div className="w-full max-w-xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-4 animate-slide-up">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto pt-16 sm:pt-20 px-3 sm:px-4 bg-black/40 backdrop-blur-xs">
+          <div className="w-full max-w-xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-3 sm:p-4 animate-slide-up">
             <form onSubmit={handleSearchSubmit} className="relative flex items-center">
               <Search className="w-5 h-5 text-neutral-400 absolute left-3" />
               <input

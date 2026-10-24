@@ -64,8 +64,8 @@ export const DashboardPage: React.FC = () => {
       {/* 1. Candidate Hero & Profile Completeness */}
       <ProfileCompletenessCard />
 
-      {/* 2. 4 Primary Stat Cards with generous spacing */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* 2. 4 Primary Stat Cards: 1 col on mobile, 2 on tablet, 4 on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           title="Saved Jobs"
           value={stats.savedCount}

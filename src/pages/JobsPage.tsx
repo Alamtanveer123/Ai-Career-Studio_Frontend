@@ -84,10 +84,10 @@ export const JobsPage: React.FC = () => {
         </div>
 
         {/* View Toggle: All vs Saved Only */}
-        <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 p-1.5 rounded-full text-xs font-semibold self-stretch sm:self-auto border border-neutral-200/60 dark:border-neutral-700/60">
+        <div className="flex w-full sm:w-auto items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 p-1.5 rounded-2xl sm:rounded-full text-xs font-semibold self-stretch sm:self-auto border border-neutral-200/60 dark:border-neutral-700/60">
           <button
             onClick={() => setViewOnlySaved(false)}
-            className={`px-4 py-2 rounded-full transition-all flex items-center gap-1.5 ${
+            className={`min-h-[44px] flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full transition-all flex items-center justify-center gap-1.5 ${
               !viewOnlySaved
                 ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs'
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
@@ -97,7 +97,7 @@ export const JobsPage: React.FC = () => {
           </button>
           <button
             onClick={() => setViewOnlySaved(true)}
-            className={`px-4 py-2 rounded-full transition-all flex items-center gap-1.5 ${
+            className={`min-h-[44px] flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full transition-all flex items-center justify-center gap-1.5 ${
               viewOnlySaved
                 ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs'
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
@@ -143,7 +143,7 @@ export const JobsPage: React.FC = () => {
           ))}
         </div>
       ) : displayedJobs.length === 0 ? (
-        <Card className="p-16 text-center border-dashed border-2 border-neutral-300 dark:border-neutral-800 space-y-3">
+        <Card className="p-8 sm:p-16 text-center border-dashed border-2 border-neutral-300 dark:border-neutral-800 space-y-3">
           <div className="w-14 h-14 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-400 flex items-center justify-center mx-auto">
             <Frown className="w-7 h-7" />
           </div>
@@ -185,4 +185,3 @@ export const JobsPage: React.FC = () => {
     </div>
   );
 };
-

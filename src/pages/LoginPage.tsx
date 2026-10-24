@@ -13,8 +13,6 @@ import {
   FileText,
   Headphones,
   Kanban,
-  Github,
-  Chrome,
 } from 'lucide-react';
 
 // Backend ka base URL. Frontend ki .env me VITE_API_URL set karo.
@@ -89,12 +87,6 @@ export const LoginPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Real OAuth lagne tak social login band rakho, warna koi bhi bina auth ke andar aa jayega
-  const handleSocialLogin = (provider: string) => {
-    const label = provider.charAt(0).toUpperCase() + provider.slice(1);
-    setError(`${label} sign-in is coming soon. Please use email and password.`);
   };
 
   const features = [
@@ -214,9 +206,9 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {/* Right Panel — Login / Sign Up Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 relative">
+      <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-8 lg:px-12 py-8 sm:py-12 relative min-h-screen">
         {/* Mobile Brand Header */}
-        <div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
+        <div className="lg:hidden w-full max-w-md flex items-center gap-2 mb-8">
           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
@@ -225,7 +217,7 @@ export const LoginPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md space-y-6 sm:space-y-8">
           {/* Form Header */}
           <div className="space-y-2">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
@@ -233,40 +225,9 @@ export const LoginPage: React.FC = () => {
             </h2>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
               {isSignUp
-                ? 'Start your AI-powered career journey today.'
-                : 'Sign in to continue your career journey.'}
+                ? 'Start your AI-powered career journey today with email.'
+                : 'Sign in to continue your career journey with email.'}
             </p>
-          </div>
-
-          {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleSocialLogin('google')}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 text-sm font-medium text-neutral-700 dark:text-neutral-300 transition-all duration-200 hover:shadow-sm disabled:opacity-50 group"
-            >
-              <Chrome className="w-4.5 h-4.5 text-neutral-500 group-hover:text-brand-500 transition-colors" />
-              <span>Google</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSocialLogin('github')}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 text-sm font-medium text-neutral-700 dark:text-neutral-300 transition-all duration-200 hover:shadow-sm disabled:opacity-50 group"
-            >
-              <Github className="w-4.5 h-4.5 text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors" />
-              <span>GitHub</span>
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-800" />
-            <span className="text-xs font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-              or continue with email
-            </span>
-            <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-800" />
           </div>
 
           {/* Form */}

@@ -97,8 +97,8 @@ export const TrackerPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Pipeline Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* Pipeline Metric Cards: 1 col on small mobile, 2 col on tablet, 4 on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="p-4 flex items-center gap-3.5 border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-card">
           <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 flex items-center justify-center shrink-0">
             <Kanban className="w-5 h-5" />

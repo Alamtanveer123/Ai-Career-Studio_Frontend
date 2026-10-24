@@ -26,7 +26,7 @@ export const ResumePage: React.FC = () => {
         </div>
 
         {resumeAnalysis && (
-          <div className="flex items-center gap-2.5">
+          <div className="flex w-full sm:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             <Button
               size="sm"
               variant="outline"
@@ -35,8 +35,8 @@ export const ResumePage: React.FC = () => {
             >
               Reset &amp; Delete Resume
             </Button>
-            <Link to="/jobs">
-              <Button size="sm" variant="outline" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+            <Link to="/jobs" className="w-full sm:w-auto">
+              <Button size="sm" variant="outline" className="w-full" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
                 Explore Matched Jobs
               </Button>
             </Link>
@@ -122,7 +122,7 @@ export const ResumePage: React.FC = () => {
               <AnalysisFeedback analysis={resumeAnalysis} />
             </>
           ) : (
-            <Card className="p-16 text-center border-dashed border-2 border-neutral-300 dark:border-neutral-800">
+            <Card className="p-8 sm:p-16 text-center border-dashed border-2 border-neutral-300 dark:border-neutral-800">
               <Sparkles className="w-10 h-10 text-neutral-400 mx-auto mb-3" />
               <h4 className="text-base font-bold text-neutral-800 dark:text-neutral-200">
                 No Resume Analyzed Yet
@@ -137,4 +137,3 @@ export const ResumePage: React.FC = () => {
     </div>
   );
 };
-
