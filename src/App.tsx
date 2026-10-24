@@ -32,7 +32,7 @@ export const App: React.FC = () => {
   }, [isDarkMode]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         {/* Public route: Login */}
         <Route path="/login" element={<LoginPage />} />
