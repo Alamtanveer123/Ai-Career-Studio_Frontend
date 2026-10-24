@@ -62,7 +62,8 @@ export const jobsService = {
       if (filters?.location && filters.location !== 'All Locations') queryParams.set('location', filters.location);
       if (filters?.minSalaryLpa) queryParams.set('min_salary', String(filters.minSalaryLpa));
       
-      const endpoint = `/jobs${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      queryParams.set('format', 'array');
+      const endpoint = `/jobs?${queryParams.toString()}`;
       return await apiClient.get<Job[]>(endpoint, fallbackResults);
     } catch {
       await delay(80);
@@ -90,4 +91,3 @@ export const jobsService = {
     return all.sort((a, b) => b.matchScore - a.matchScore).slice(0, limit);
   },
 };
-

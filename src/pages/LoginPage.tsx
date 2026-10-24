@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import {
@@ -13,14 +13,131 @@ import {
   FileText,
   Headphones,
   Kanban,
+  KeyRound,
+  RotateCcw,
+  ArrowLeft,
 } from 'lucide-react';
 
 // Backend ka base URL. Frontend ki .env me VITE_API_URL set karo.
-const API_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+type ResetStep = 'email' | 'otp' | 'password';
+
+const PasswordResetModal: React.FC<{
+  initialEmail: string;
+  onClose: () => void;
+  onComplete: () => void;
+}> = ({ initialEmail, onClose, onComplete }) => {
+  const [step, setStep] = useState<ResetStep>('email');
+  const [email, setEmail] = useState(initialEmail);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [resetToken, setResetToken] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+  const requestOtp = async (resend = false) => {
+    setError('');
+    if (!email.trim()) return setError('Please enter your email address.');
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_URL}/auth/${resend ? 'resend-otp' : 'forgot-password'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error?.message || 'Unable to request an OTP.');
+      setSecondsLeft(Math.max(1, Number(data.cooldownSeconds) || 60));
+      setStep('otp');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to request an OTP.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyOtp = async () => {
+    const code = otp.join('');
+    if (code.length !== 6) return setError('Enter the complete 6 digit OTP.');
+    try {
+      setIsLoading(true);
+      setError('');
+      const response = await fetch(`${API_URL}/auth/verify-otp`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), otp: code }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error?.message || 'OTP verification failed.');
+      setResetToken(data.resetToken);
+      setStep('password');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'OTP verification failed.');
+    } finally { setIsLoading(false); }
+  };
+
+  const submitNewPassword = async () => {
+    if (password.length < 8) return setError('Password must be at least 8 characters.');
+    if (password !== confirmPassword) return setError('Passwords do not match.');
+    try {
+      setIsLoading(true);
+      setError('');
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), resetToken, password }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error?.message || 'Password reset failed.');
+      onComplete();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Password reset failed.');
+    } finally { setIsLoading(false); }
+  };
+
+  const updateOtp = (value: string, index: number) => {
+    const digits = value.replace(/\D/g, '').slice(0, 6).split('');
+    const next = [...otp];
+    digits.forEach((digit, offset) => { if (index + offset < 6) next[index + offset] = digit; });
+    if (!digits.length) next[index] = '';
+    setOtp(next);
+    const nextIndex = Math.min(5, index + Math.max(1, digits.length));
+    if (digits.length) inputRefs.current[nextIndex]?.focus();
+  };
+
+  React.useEffect(() => {
+    if (!secondsLeft) return;
+    const timer = window.setInterval(() => setSecondsLeft((current) => Math.max(0, current - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [secondsLeft]);
+
+  const title = step === 'email' ? 'Reset your password' : step === 'otp' ? 'Check your email' : 'Choose a new password';
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-neutral-950/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-5 shadow-2xl dark:border-neutral-800 dark:bg-neutral-900 sm:p-7">
+        <button onClick={onClose} className="mb-5 inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-white">
+          <ArrowLeft className="h-4 w-4" /> Back to sign in
+        </button>
+        <div className="mb-6 space-y-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400"><KeyRound className="h-5 w-5" /></div>
+          <h2 className="text-2xl font-extrabold text-neutral-900 dark:text-white">{title}</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">{step === 'email' ? 'We’ll email a secure 6 digit code if an account exists.' : step === 'otp' ? `Enter the code sent to ${email}.` : 'Use at least 8 characters for your new password.'}</p>
+        </div>
+        {error && <p className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">{error}</p>}
+        {step === 'email' && <div className="space-y-4"><input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="you@example.com" className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-base text-neutral-900 outline-none focus:ring-2 focus:ring-brand-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" /><button disabled={isLoading} onClick={() => requestOtp()} className="min-h-[48px] w-full rounded-xl bg-brand-500 px-4 py-3 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60">{isLoading ? 'Sending…' : 'Send OTP'}</button></div>}
+        {step === 'otp' && <div className="space-y-5"><div className="flex justify-between gap-1.5 sm:gap-2">{otp.map((digit, index) => <input key={index} ref={(node) => { inputRefs.current[index] = node; }} value={digit} inputMode="numeric" maxLength={6} aria-label={`OTP digit ${index + 1}`} onChange={(e) => updateOtp(e.target.value, index)} onKeyDown={(e) => { if (e.key === 'Backspace' && !otp[index] && index) inputRefs.current[index - 1]?.focus(); }} className="h-12 min-w-0 flex-1 rounded-xl border border-neutral-200 bg-white text-center text-lg font-bold outline-none focus:ring-2 focus:ring-brand-500 dark:border-neutral-700 dark:bg-neutral-950" />)}</div><button disabled={isLoading} onClick={verifyOtp} className="min-h-[48px] w-full rounded-xl bg-brand-500 px-4 py-3 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60">{isLoading ? 'Verifying…' : 'Verify OTP'}</button><button disabled={secondsLeft > 0 || isLoading} onClick={() => requestOtp(true)} className="min-h-[44px] w-full text-sm font-semibold text-brand-600 disabled:text-neutral-400"><RotateCcw className="mr-1 inline h-4 w-4" />{secondsLeft ? `Resend available in ${secondsLeft}s` : 'Resend OTP'}</button></div>}
+        {step === 'password' && <div className="space-y-3"><input value={password} onChange={(e) => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} autoComplete="new-password" placeholder="New password" className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand-500 dark:border-neutral-700 dark:bg-neutral-950" /><input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type={showPassword ? 'text' : 'password'} autoComplete="new-password" placeholder="Confirm new password" className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand-500 dark:border-neutral-700 dark:bg-neutral-950" /><label className="flex min-h-[44px] items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300"><input type="checkbox" checked={showPassword} onChange={(e) => setShowPassword(e.target.checked)} /> Show passwords</label><button disabled={isLoading} onClick={submitNewPassword} className="min-h-[48px] w-full rounded-xl bg-brand-500 px-4 py-3 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60">{isLoading ? 'Updating…' : 'Reset password'}</button></div>}
+      </div>
+    </div>
+  );
+};
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAppStore();
+  const { login, addToast } = useAppStore();
 
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
@@ -29,6 +146,7 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isResetOpen, setIsResetOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +156,8 @@ export const LoginPage: React.FC = () => {
       setError('Please enter your email address.');
       return;
     }
-    if (!password.trim() || password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (!password.trim() || password.length < 8) {
+      setError('Password must be at least 8 characters.');
       return;
     }
     if (isSignUp && !name.trim()) {
@@ -280,7 +398,8 @@ export const LoginPage: React.FC = () => {
                 {!isSignUp && (
                   <button
                     type="button"
-                    className="text-xs text-brand-500 hover:text-brand-600 font-medium transition-colors"
+                    onClick={() => setIsResetOpen(true)}
+                    className="min-h-[44px] -mr-2 px-2 text-xs text-brand-500 hover:text-brand-600 font-medium transition-colors"
                   >
                     Forgot password?
                   </button>
@@ -354,6 +473,7 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
       </div>
+      {isResetOpen && <PasswordResetModal initialEmail={email} onClose={() => setIsResetOpen(false)} onComplete={() => { setIsResetOpen(false); setPassword(''); setError(''); addToast('Password reset', 'Your password was updated. Please sign in.', 'success'); }} />}
     </div>
   );
 };

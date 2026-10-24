@@ -98,8 +98,14 @@ export const useAppStore = create<AppState>()(
       login: (email: string, name?: string, role?: string) => {
         set({
           isAuthenticated: true,
+          // Never merge a new identity with data from an earlier session.
+          savedJobIds: [],
+          applications: [],
+          resumeAnalysis: null,
+          interviewSessions: [],
+          recentActivity: [],
           profile: {
-            ...get().profile,
+            ...DEFAULT_PROFILE,
             email,
             name: name || email.split('@')[0],
             targetRole: role || '',
@@ -120,6 +126,7 @@ export const useAppStore = create<AppState>()(
           recentActivity: [],
         });
         // Clear persisted storage
+        localStorage.removeItem('auth_token');
         localStorage.removeItem('ai-career-studio-storage-v1');
         get().addToast('Logged Out', 'You have been signed out successfully.', 'info');
       },
@@ -385,15 +392,10 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'ai-career-studio-storage-v1',
-      // Safe rehydration migration: derive matchScore defensively if older storage lacked it
+      // A device may remember the visual theme, but never another user's data/session.
+      partialize: (state) => ({ isDarkMode: state.isDarkMode }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
-        if (state.applications && Array.isArray(state.applications)) {
-          state.applications = state.applications.map((app) => ({
-            ...app,
-            matchScore: deriveMatchScore(app.jobId, app.matchScore),
-          }));
-        }
         if (state.isDarkMode) {
           document.documentElement.classList.add('dark');
         } else {
