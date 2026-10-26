@@ -245,7 +245,7 @@ export const LoginPage: React.FC = () => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Tanveer Alam"
+                    placeholder="e.g. John Doe"
                     className="w-full pl-10 pr-4 py-3 text-sm bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 text-neutral-900 dark:text-white placeholder-neutral-400 transition-all"
                   />
                 </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { UploadCloud, FileText, Sparkles, RefreshCw, Trash2 } from 'lucide-react';
@@ -72,12 +72,23 @@ Job Board Portal (React, Node.js, MongoDB)
 };
 
 export const ResumeUpload: React.FC = () => {
-  const { resumeAnalysis, setResumeAnalysis, clearResumeAnalysis, updateProfile, addToast } = useAppStore();
-  const [text, setText] = useState<string>(SAMPLE_RESUMES.frontend);
-  const [fileName, setFileName] = useState<string>('Tanveer_Alam_Resume.pdf');
+  const { profile, resumeAnalysis, setResumeAnalysis, clearResumeAnalysis, updateProfile, addToast } = useAppStore();
+  const [text, setText] = useState<string>(() => profile.resumeText || '');
+  const [fileName, setFileName] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state if user logs out, switches account, or clears resume
+  useEffect(() => {
+    setText(profile.resumeText || '');
+    if (!profile.resumeText) {
+      setFileName('');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  }, [profile.resumeText]);
 
   const handleClearResume = () => {
     setText('');
@@ -85,6 +96,7 @@ export const ResumeUpload: React.FC = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    updateProfile({ resumeText: undefined, lastResumeUploadDate: undefined });
     clearResumeAnalysis();
   };
 

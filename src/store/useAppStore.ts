@@ -305,7 +305,14 @@ export const useAppStore = create<AppState>()(
       },
 
       clearResumeAnalysis: () => {
-        set({ resumeAnalysis: null });
+        set((state) => ({
+          resumeAnalysis: null,
+          profile: {
+            ...state.profile,
+            resumeText: undefined,
+            lastResumeUploadDate: undefined,
+          },
+        }));
         get().addToast('Resume Cleared', 'Uploaded resume and analysis report have been reset.', 'info');
       },
 
